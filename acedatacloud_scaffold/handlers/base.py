@@ -84,6 +84,10 @@ class BaseHandler(RequestHandler, LogMixin):
             'utf-8') if application_id and len(application_id) > 0 else None
         logger.debug(f'application id {self.application_id}')
 
+    def initialize_task_id(self):
+        self.task_id = str(uuid4())
+        logger.debug(f'task id {self.task_id}')
+
     def initialize(self):
         self.initialize_trace_id()
         self.initialize_task_id()

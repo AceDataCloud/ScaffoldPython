@@ -7,6 +7,9 @@ class ForwardMixin(object):
     async def get_forward_request_timeout(self):
         return httpx.Timeout(DEFAULT_TIMEOUT_FORWARD, read=None)
 
+    async def get_forward_request_method(self):
+        return self.request.method
+
     async def get_forward_request_url(self):
         return self.request.uri
 
@@ -50,7 +53,7 @@ class ForwardMixin(object):
                 forward_response_status = await self.get_forward_response_status()
                 self.set_status(forward_response_status)
                 # set response headers
-                forward_response_headers = self.get_forward_response_headers()
+                forward_response_headers = await self.get_forward_response_headers()
                 for header, value in forward_response_headers.items():
                     self.logger.debug(
                         f'set header {header} {value}')

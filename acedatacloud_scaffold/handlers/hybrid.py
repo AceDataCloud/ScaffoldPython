@@ -1,4 +1,3 @@
-from acedatacloud_scaffold.mixins.callback import CallbackMixin
 from acedatacloud_scaffold.handlers.callback import CallbackHandler
 
 
