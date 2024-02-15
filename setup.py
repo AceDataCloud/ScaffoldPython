@@ -20,12 +20,12 @@ def read_requirements(filename):
             if not line.startswith('#')]
 
 
-NAME = "zhishuyun-scaffold"
-FOLDER = 'zhishuyun_scaffold'
-DESCRIPTION = 'A scaffold to help you build zhishuyun api easily.'
-URL = 'https://github.com/ZhiShuYun/ScaffoldPython'
-EMAIL = 'dev@zhishuyun.com'
-AUTHOR = 'Germey'
+NAME = "acedatacloud-scaffold"
+FOLDER = 'acedatacloud_scaffold'
+DESCRIPTION = 'A scaffold to help you build Ace Data Cloud api easily.'
+URL = 'https://github.com/AceDataCloud/ScaffoldPython'
+EMAIL = 'dev@acedata.cloud'
+AUTHOR = 'Ace Data Cloud'
 REQUIRES_PYTHON = '>=3.7.0'
 VERSION = None
 

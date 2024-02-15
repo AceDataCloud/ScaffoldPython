@@ -1,16 +1,16 @@
-# ZhiShuYun Scaffold
+# Ace Data Cloud Scaffold
 
 Install:
 
 ```
-pip install zhishuyun-scaffold
+pip install acedatacloud-scaffold
 ```
 
 Sample:
 
 ```python
-from zhishuyun_scaffold import BaseController as Controller
-from zhishuyun_scaffold import BaseHandler
+from acedatacloud_scaffold import BaseController as Controller
+from acedatacloud_scaffold import BaseHandler
 import json
 
 

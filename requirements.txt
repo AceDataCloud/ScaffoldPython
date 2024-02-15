@@ -3,3 +3,5 @@ djangorestframework>=3.11.0
 environs
 loguru
 tornado
+httpx
+requests
