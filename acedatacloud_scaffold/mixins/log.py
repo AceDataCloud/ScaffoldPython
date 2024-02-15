@@ -36,4 +36,7 @@ class LogMixin(object):
             def critical(self, message):
                 self.outer.log('critical', message)
 
+            def exception(self, message):
+                self.outer.log('exception', message)
+
         return LoggerAdapter(self)

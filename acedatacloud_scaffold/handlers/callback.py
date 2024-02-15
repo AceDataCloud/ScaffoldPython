@@ -1,9 +1,10 @@
 from acedatacloud_scaffold.handlers.base import BaseHandler
 import json
-from acedatacloud_scaffold.exceptions.bad_request import BadRequestException
 from loguru import logger
 import requests
-from acedatacloud_scaffold.settings import ERROR_STATUS_API_ERROR
+from acedatacloud_scaffold.settings import \
+    ERROR_STATUS_API_ERROR, ERROR_CODE_API_ERROR
+from acedatacloud_scaffold.exceptions import APIException, BadRequestException
 
 
 class CallbackHandler(BaseHandler):
@@ -26,18 +27,30 @@ class CallbackHandler(BaseHandler):
         data['trace_id'] = self.trace_id
         self.send_callback(data)
 
+    def write_index(self):
+        self.write_json({
+            'task_id': self.task_id,
+        })
+        self.finish()
+        self._finished = False
+        # this flag used for checking if index has been written,
+        # if index not written, we can return error sync
+        self.index_written = True
+
     def write_success(self, data, status=200, headers={}):
         self.write_success_async(data, status=status, headers=headers)
 
     def write_error(self, status_code, **kwargs):
         self.write_error_async(status_code, **kwargs)
+        if not self.index_written:
+            self.write_error_sync(status_code, **kwargs)
 
     def write_error_async(self, status_code, **kwargs):
         self.logger.error(f'error happened {kwargs}')
         exception = None
         if "exc_info" in kwargs:
             exception = kwargs["exc_info"][1]
-        self.logger.error(f'error {exception}')
+        self.logger.exception(f'error {exception}')
         data = {}
         status = status_code or exception.status_code if hasattr(
             exception, 'status_code') else ERROR_STATUS_API_ERROR
@@ -62,5 +75,6 @@ class CallbackHandler(BaseHandler):
             callback_url = post_json.get('callback_url')
             if not callback_url:
                 raise BadRequestException('callback_url is required')
+            self.index_written = False
         except Exception:
             pass

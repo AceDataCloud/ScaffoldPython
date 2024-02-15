@@ -11,7 +11,7 @@ import requests
 
 class BaseHandler(RequestHandler, LogMixin):
 
-    def write_json(self, data, status, headers={}):
+    def write_json(self, data, status=200, headers={}):
         self.set_status(status)
         self.set_header('Content-Type', 'application/json')
         for key, value in headers.items():
@@ -21,6 +21,7 @@ class BaseHandler(RequestHandler, LogMixin):
 
     def write_success_sync(self, data, status=200, headers={}):
         self.write_json(data, status=status, headers=headers)
+        self.finish()
 
     def write_success(self, data, status=200, headers={}):
         self.write_success_sync(data, status=status, headers=headers)
@@ -33,7 +34,7 @@ class BaseHandler(RequestHandler, LogMixin):
         exception = None
         if "exc_info" in kwargs:
             exception = kwargs["exc_info"][1]
-        self.logger.error(f'error {exception}')
+        self.logger.exception(f'error {exception}')
         data = {}
         status = status_code or exception.status_code if hasattr(
             exception, 'status_code') else ERROR_STATUS_API_ERROR
@@ -49,6 +50,7 @@ class BaseHandler(RequestHandler, LogMixin):
         }
         self.write_json(data, status=status)
         self.logger.debug(f'write error {data}')
+        self.finish()
 
     @logger.catch
     def record(self, data):
