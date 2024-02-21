@@ -21,14 +21,14 @@ class ForwardMixin(object):
 
     async def get_forward_response_status(self):
         return self.forward_response.status_code \
-            if getattr(self, 'forward_response') else None
+            if hasattr(self, 'forward_response') else None
 
     async def get_forward_response_headers(self):
         return self.forward_response.headers \
-            if getattr(self, 'forward_response') else None
+            if hasattr(self, 'forward_response') else None
 
     async def get_forward_response_body(self):
-        if not getattr(self, 'forward_response'):
+        if not hasattr(self, 'forward_response'):
             return
         async for data in self.forward_response.aiter_raw():
             yield data
