@@ -60,6 +60,7 @@ class ForwardMixin(object):
         forward_headers = await self.get_forward_request_headers()
         forward_body = await self.get_forward_request_body()
         forward_method = await self.get_forward_request_method()
+        forward_params = await self.get_forward_request_params()
 
         async with httpx.AsyncClient(timeout=forward_timeout) as client:
             self.logger.debug(
@@ -67,6 +68,7 @@ class ForwardMixin(object):
             async with client.stream(
                 forward_method,
                 forward_url,
+                params=forward_params,
                 headers=forward_headers,
                 data=forward_body,
             ) as response:
