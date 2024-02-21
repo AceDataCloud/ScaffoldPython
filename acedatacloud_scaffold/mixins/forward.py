@@ -29,6 +29,26 @@ class ForwardMixin(object):
         async for data in self.forward_response.aiter_raw():
             yield data
 
+    async def write_response_body(self):
+        async for data in self.get_forward_response_body():
+            self.logger.debug(
+                f'write data {data}')
+            self.write(data)
+        self.logger.debug('finish write data')
+        self.finish()
+
+    async def write_response_status(self):
+        forward_response_status = await self.get_forward_response_status()
+        self.set_status(forward_response_status)
+
+    async def write_response_headers(self):
+        # set response headers
+        forward_response_headers = await self.get_forward_response_headers()
+        for header, value in forward_response_headers.items():
+            self.logger.debug(
+                f'set header {header} {value}')
+            self.set_header(header, value)
+
     async def forward(self):
         # forward info for building forward request
         forward_timeout = await self.get_forward_request_timeout()
@@ -49,19 +69,6 @@ class ForwardMixin(object):
                 self.forward_response = response
                 self.logger.debug(
                     f'forward response {self.forward_response}')
-                # set response status
-                forward_response_status = await self.get_forward_response_status()
-                self.set_status(forward_response_status)
-                # set response headers
-                forward_response_headers = await self.get_forward_response_headers()
-                for header, value in forward_response_headers.items():
-                    self.logger.debug(
-                        f'set header {header} {value}')
-                    self.set_header(header, value)
-                # set response body
-                async for data in self.get_forward_response_body():
-                    self.logger.debug(
-                        f'write data {data}')
-                    self.write(data)
-                self.logger.debug('finish write data')
-                self.finish()
+                await self.write_response_status()
+                await self.write_response_headers()
+                await self.write_response_body()

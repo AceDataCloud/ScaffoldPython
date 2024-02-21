@@ -53,7 +53,7 @@ class BaseHandler(RequestHandler, LogMixin):
         self.finish()
 
     @logger.catch
-    def record(self, data):
+    def record(self, data, extra_data={}):
         record_server_url = RECORD_SERVER_URL
         self.logger.debug(f'record url {record_server_url}')
         data = {
@@ -70,6 +70,7 @@ class BaseHandler(RequestHandler, LogMixin):
                 'headers': dict(self.request.headers),
             }
         }
+        data.update(extra_data)
         logger.debug(f'{self.trace_id} record data {data}')
         response = requests.post(record_server_url, json=data)
         logger.debug(f'{self.trace_id} record response {response}')
