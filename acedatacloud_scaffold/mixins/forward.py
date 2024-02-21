@@ -8,24 +8,28 @@ class ForwardMixin(object):
         return httpx.Timeout(DEFAULT_TIMEOUT_FORWARD, read=None)
 
     async def get_forward_request_method(self):
-        return self.request.method
+        return self.request.method if self.request else None
 
     async def get_forward_request_url(self):
-        return self.request.uri
+        return self.request.uri if self.request else None
 
     async def get_forward_request_headers(self):
-        return self.request.headers
+        return self.request.headers if self.request else None
 
     async def get_forward_request_body(self):
-        return self.request.body
+        return self.request.body if self.request else None
 
     async def get_forward_response_status(self):
-        return self.forward_response.status_code
+        return self.forward_response.status_code \
+            if getattr(self, 'forward_response') else None
 
     async def get_forward_response_headers(self):
-        return self.forward_response.headers
+        return self.forward_response.headers \
+            if getattr(self, 'forward_response') else None
 
     async def get_forward_response_body(self):
+        if not getattr(self, 'forward_response'):
+            return
         async for data in self.forward_response.aiter_raw():
             yield data
 

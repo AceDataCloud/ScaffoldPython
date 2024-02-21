@@ -9,7 +9,7 @@ HTTP_PORT = env.int('HTTP_PORT', 8000)
 DEFAULT_TIMEOUT_FORWARD = env.int('DEFAULT_TIMEOUT_FORWARD', 60)
 
 RECORD_SERVER_URL = env.str(
-    'RECORD_SERVER_URL', 'http://platform-record:8000/record')
+    'RECORD_SERVER_URL', 'http://platform-gateway:8000/record')
 
 # error status
 ERROR_STATUS_API_ERROR = 500
