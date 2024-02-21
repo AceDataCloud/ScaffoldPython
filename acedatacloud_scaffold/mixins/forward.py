@@ -23,6 +23,9 @@ class ForwardMixin(object):
         return self.forward_response.status_code \
             if hasattr(self, 'forward_response') else None
 
+    async def get_forward_request_params(self):
+        return None
+
     async def get_forward_response_headers(self):
         return self.forward_response.headers \
             if hasattr(self, 'forward_response') else None
@@ -54,6 +57,7 @@ class ForwardMixin(object):
             self.set_header(header, value)
 
     async def forward(self):
+        self.logger.debug('start to forward request')
         # forward info for building forward request
         forward_timeout = await self.get_forward_request_timeout()
         forward_url = await self.get_forward_request_url()
@@ -64,7 +68,7 @@ class ForwardMixin(object):
 
         async with httpx.AsyncClient(timeout=forward_timeout) as client:
             self.logger.debug(
-                f'forward_url {forward_url} forward_headers {forward_headers} forward_body {forward_body}')
+                f'forward_url {forward_url} forward_headers {forward_headers} forward_body {forward_body} forward_params {forward_params}')
             async with client.stream(
                 forward_method,
                 forward_url,

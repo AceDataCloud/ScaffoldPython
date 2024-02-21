@@ -52,23 +52,42 @@ class BaseHandler(RequestHandler, LogMixin):
         self.logger.debug(f'write error {data}')
         self.finish()
 
+    def get_record_application_id(self):
+        return self.application_id
+
+    def get_record_trace_id(self):
+        return self.trace_id
+
+    def get_record_api_id(self):
+        return self.api_id
+
+    def get_record_task_id(self):
+        return self.task_id
+
+    def get_record_request(self):
+        return {
+            'body': self.request.body.decode('utf-8'),
+            'json': json.loads(self.request.body),
+            'headers': dict(self.request.headers),
+            'method': self.request.method,
+        }
+
+    def get_record_response(self):
+        return {
+            'status': self.get_status(),
+        }
+
     @logger.catch
-    def record(self, data, extra_data={}):
+    def record(self, extra_data={}):
         record_server_url = RECORD_SERVER_URL
         self.logger.debug(f'record url {record_server_url}')
         data = {
-            'status': data.get('status'),
-            'trace_id': self.trace_id,
-            'application_id': self.application_id,
-            'metadata': {
-                'task_id': self.task_id,
-            },
-            'request': {
-                'body': self.request.body.decode('utf-8'),
-                'json': json.loads(self.request.body),
-                'query': self.request.query_arguments,
-                'headers': dict(self.request.headers),
-            }
+            'trace_id': self.get_record_trace_id(),
+            'application_id': self.get_record_application_id(),
+            'api_id': self.get_record_api_id(),
+            'task_id': self.get_record_task_id(),
+            'request': self.get_record_request(),
+            'response': self.get_record_response()
         }
         data.update(extra_data)
         logger.debug(f'{self.trace_id} record data {data}')
@@ -80,6 +99,12 @@ class BaseHandler(RequestHandler, LogMixin):
         self.trace_id = trace_id[0].decode(
             'utf-8') if trace_id and len(trace_id) > 0 else str(uuid4())
         logger.debug(f'trace id {self.trace_id}')
+
+    def initialize_api_id(self):
+        api_id = self.request.query_arguments.get('api_id')
+        self.api_id = api_id[0].decode(
+            'utf-8') if api_id and len(api_id) > 0 else None
+        logger.debug(f'api id {self.api_id}')
 
     def initialize_application_id(self):
         application_id = self.request.query_arguments.get('application_id')
@@ -95,3 +120,4 @@ class BaseHandler(RequestHandler, LogMixin):
         self.initialize_trace_id()
         self.initialize_task_id()
         self.initialize_application_id()
+        self.initialize_api_id()
