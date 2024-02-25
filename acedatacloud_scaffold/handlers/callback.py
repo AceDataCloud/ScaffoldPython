@@ -33,6 +33,9 @@ class CallbackHandler(BaseHandler):
         })
         self.finish()
         self._finished = False
+        # this flag used for checking if headers has been written,
+        # if headers not written, we can continue return error sync
+        self._headers_written = False
         # this flag used for checking if index has been written,
         # if index not written, we can return error sync
         self.index_written = True
