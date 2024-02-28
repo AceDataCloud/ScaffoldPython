@@ -12,7 +12,8 @@ import requests
 class BaseHandler(RequestHandler, LogMixin):
 
     def write_json(self, data, status=200, headers={}):
-        self.set_status(status)
+        if not self._status_code:
+            self.set_status(status)
         self.set_header('Content-Type', 'application/json')
         for key, value in headers.items():
             self.set_header(key, value)
