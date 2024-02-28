@@ -36,8 +36,9 @@ class BaseHandler(RequestHandler, LogMixin):
             exception = kwargs["exc_info"][1]
         self.logger.exception(f'error {exception}')
         data = {}
-        status = status_code or exception.status_code if hasattr(
-            exception, 'status_code') else ERROR_STATUS_API_ERROR
+        status = exception.status_code if hasattr(
+            exception, 'status_code') else (status_code or
+                                            ERROR_STATUS_API_ERROR)
         self.logger.debug(f'{self.trace_id} error status {status}')
         # construct error
         data = {
