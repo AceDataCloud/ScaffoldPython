@@ -25,6 +25,7 @@ class CallbackHandler(BaseHandler):
         data['task_id'] = self.task_id
         # append trace id
         data['trace_id'] = self.trace_id
+        data['success'] = True
         self.send_callback(data)
 
     def write_index(self):
@@ -63,6 +64,7 @@ class CallbackHandler(BaseHandler):
         data = {
             'task_id': self.task_id,
             'trace_id': self.trace_id,
+            'success': False,
             'error': {
                 'code': (exception.code if hasattr(exception, 'code') else
                          exception.default_code) if isinstance(exception, APIException) else ERROR_CODE_API_ERROR,
