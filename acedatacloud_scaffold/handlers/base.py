@@ -66,6 +66,12 @@ class BaseHandler(RequestHandler, LogMixin):
     def get_record_task_id(self):
         return self.task_id
 
+    def get_record_user_id(self):
+        return self.user_id
+
+    def get_record_credential_id(self):
+        return self.credential_id
+
     def get_record_request(self):
         return {
             'body': self.request.body.decode('utf-8'),
@@ -88,6 +94,8 @@ class BaseHandler(RequestHandler, LogMixin):
             'application_id': self.get_record_application_id(),
             'api_id': self.get_record_api_id(),
             'task_id': self.get_record_task_id(),
+            'user_id': self.get_record_user_id(),
+            'credential_id': self.get_record_credential_id(),
             'request': self.get_record_request(),
             'response': self.get_record_response()
         }
@@ -101,6 +109,18 @@ class BaseHandler(RequestHandler, LogMixin):
         self.trace_id = trace_id[0].decode(
             'utf-8') if trace_id and len(trace_id) > 0 else str(uuid4())
         logger.debug(f'trace id {self.trace_id}')
+
+    def initialize_credential_id(self):
+        credential_id = self.request.query_arguments.get('credential_id')
+        self.credential_id = credential_id[0].decode(
+            'utf-8') if credential_id and len(credential_id) > 0 else None
+        logger.debug(f'credential id {self.credential_id}')
+
+    def initialize_user_id(self):
+        user_id = self.request.query_arguments.get('user_id')
+        self.user_id = user_id[0].decode(
+            'utf-8') if user_id and len(user_id) > 0 else None
+        logger.debug(f'user id {self.user_id}')
 
     def initialize_api_id(self):
         api_id = self.request.query_arguments.get('api_id')
@@ -123,3 +143,5 @@ class BaseHandler(RequestHandler, LogMixin):
         self.initialize_task_id()
         self.initialize_application_id()
         self.initialize_api_id()
+        self.initialize_user_id()
+        self.initialize_credential_id()
