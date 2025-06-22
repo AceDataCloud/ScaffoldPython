@@ -7,6 +7,9 @@ class ForwardMixin(object):
     async def get_forward_request_timeout(self):
         return httpx.Timeout(DEFAULT_TIMEOUT_FORWARD, read=None)
 
+    async def get_forward_request_proxy(self):
+        return None
+
     async def get_forward_request_method(self):
         return self.request.method if self.request else None
 
@@ -66,7 +69,11 @@ class ForwardMixin(object):
         forward_method = await self.get_forward_request_method()
         forward_params = await self.get_forward_request_params()
 
-        async with httpx.AsyncClient(timeout=forward_timeout) as client:
+        async with httpx.AsyncClient(
+                **{
+                    'timeout': forward_timeout,
+                    'proxy': await self.get_forward_request_proxy()
+                }) as client:
             self.logger.debug(
                 f'forward_url {forward_url} forward_headers {forward_headers} forward_body {forward_body} forward_params {forward_params}')
             async with client.stream(
