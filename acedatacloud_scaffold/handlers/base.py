@@ -96,6 +96,7 @@ class BaseHandler(RequestHandler, LogMixin):
             'task_id': self.get_record_task_id(),
             'user_id': self.get_record_user_id(),
             'credential_id': self.get_record_credential_id(),
+            'payflow': getattr(self, 'payflow', None),
             'request': self.get_record_request(),
             'response': self.get_record_response()
         }
@@ -134,6 +135,12 @@ class BaseHandler(RequestHandler, LogMixin):
             'utf-8') if application_id and len(application_id) > 0 else None
         logger.debug(f'application id {self.application_id}')
 
+    def initialize_payflow(self):
+        payflow = self.request.query_arguments.get('payflow')
+        self.payflow = payflow[0].decode(
+            'utf-8') if payflow and len(payflow) > 0 else None
+        logger.debug(f'payflow {self.payflow}')
+
     def initialize_task_id(self):
         self.task_id = str(uuid4())
         logger.debug(f'task id {self.task_id}')
@@ -145,3 +152,4 @@ class BaseHandler(RequestHandler, LogMixin):
         self.initialize_api_id()
         self.initialize_user_id()
         self.initialize_credential_id()
+        self.initialize_payflow()
