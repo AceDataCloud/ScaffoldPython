@@ -145,6 +145,18 @@ class BaseHandler(RequestHandler, LogMixin):
         self.task_id = str(uuid4())
         logger.debug(f'task id {self.task_id}')
 
+    def initialize_started_at(self):
+        started_at = self.request.query_arguments.get('started_at')
+        self.started_at = started_at[0].decode(
+            'utf-8') if started_at and len(started_at) > 0 else None
+        logger.debug(f'started_at {self.started_at}')
+
+    def initialize_payflow(self):
+        payflow = self.request.query_arguments.get('payflow')
+        self.payflow = payflow[0].decode(
+            'utf-8') if payflow and len(payflow) > 0 else None
+        logger.debug(f'payflow {self.payflow}')
+
     def initialize(self):
         self.initialize_trace_id()
         self.initialize_task_id()
@@ -152,4 +164,5 @@ class BaseHandler(RequestHandler, LogMixin):
         self.initialize_api_id()
         self.initialize_user_id()
         self.initialize_credential_id()
+        self.initialize_started_at()
         self.initialize_payflow()
