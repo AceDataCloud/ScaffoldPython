@@ -72,6 +72,12 @@ class BaseHandler(RequestHandler, LogMixin):
     def get_record_credential_id(self):
         return self.credential_id
 
+    def get_record_authorization_id(self):
+        return getattr(self, 'authorization_id', None)
+
+    def get_record_actor_user_id(self):
+        return getattr(self, 'actor_user_id', None)
+
     def get_record_request(self):
         return {
             'body': self.request.body.decode('utf-8'),
@@ -96,6 +102,8 @@ class BaseHandler(RequestHandler, LogMixin):
             'task_id': self.get_record_task_id(),
             'user_id': self.get_record_user_id(),
             'credential_id': self.get_record_credential_id(),
+            'authorization_id': self.get_record_authorization_id(),
+            'actor_user_id': self.get_record_actor_user_id(),
             'payflow': getattr(self, 'payflow', None),
             'request': self.get_record_request(),
             'response': self.get_record_response()
@@ -157,6 +165,18 @@ class BaseHandler(RequestHandler, LogMixin):
             'utf-8') if payflow and len(payflow) > 0 else None
         logger.debug(f'payflow {self.payflow}')
 
+    def initialize_authorization_id(self):
+        authorization_id = self.request.query_arguments.get('authorization_id')
+        self.authorization_id = authorization_id[0].decode(
+            'utf-8') if authorization_id and len(authorization_id) > 0 else None
+        logger.debug(f'authorization id {self.authorization_id}')
+
+    def initialize_actor_user_id(self):
+        actor_user_id = self.request.query_arguments.get('actor_user_id')
+        self.actor_user_id = actor_user_id[0].decode(
+            'utf-8') if actor_user_id and len(actor_user_id) > 0 else None
+        logger.debug(f'actor user id {self.actor_user_id}')
+
     def initialize(self):
         self.initialize_trace_id()
         self.initialize_task_id()
@@ -166,3 +186,5 @@ class BaseHandler(RequestHandler, LogMixin):
         self.initialize_credential_id()
         self.initialize_started_at()
         self.initialize_payflow()
+        self.initialize_authorization_id()
+        self.initialize_actor_user_id()
