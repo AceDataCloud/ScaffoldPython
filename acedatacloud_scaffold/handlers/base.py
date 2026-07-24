@@ -1,5 +1,6 @@
 from loguru import logger
 from acedatacloud_scaffold.exceptions import APIException
+from acedatacloud_scaffold.execution import X402_EXECUTION_OWNER, get_execution_owner
 import json
 from acedatacloud_scaffold.settings import \
     ERROR_STATUS_API_ERROR, ERROR_CODE_API_ERROR, RECORD_SERVER_URL
@@ -93,6 +94,12 @@ class BaseHandler(RequestHandler, LogMixin):
 
     @logger.catch
     def record(self, extra_data={}):
+        execution_owner = get_execution_owner(self.request.headers)
+        if execution_owner == X402_EXECUTION_OWNER:
+            self.logger.debug('x402 execution owner: skip platform usage record')
+            return
+        if execution_owner is not None:
+            self.logger.warning(f'unknown execution owner {execution_owner}: keep platform usage record')
         record_server_url = RECORD_SERVER_URL
         self.logger.debug(f'record url {record_server_url}')
         data = {
