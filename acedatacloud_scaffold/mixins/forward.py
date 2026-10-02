@@ -40,11 +40,14 @@ class ForwardMixin(object):
             yield data
 
     async def write_response_body(self):
+        response_bytes = 0
+        response_chunks = 0
         async for data in self.get_forward_response_body():
-            self.logger.debug(
-                f'write data {data}')
+            response_bytes += len(data)
+            response_chunks += 1
             self.write(data)
-        self.logger.debug('finish write data')
+        self.logger.info(
+            f'finish write data bytes={response_bytes} chunks={response_chunks}')
         self.finish()
 
     async def write_response_status(self):
@@ -55,8 +58,6 @@ class ForwardMixin(object):
         # set response headers
         forward_response_headers = await self.get_forward_response_headers()
         for header, value in forward_response_headers.items():
-            self.logger.debug(
-                f'set header {header} {value}')
             self.set_header(header, value)
 
     async def forward(self):
@@ -68,14 +69,20 @@ class ForwardMixin(object):
         forward_body = await self.get_forward_request_body()
         forward_method = await self.get_forward_request_method()
         forward_params = await self.get_forward_request_params()
+        if isinstance(forward_body, str):
+            body_bytes = len(forward_body.encode('utf-8'))
+        elif isinstance(forward_body, bytes):
+            body_bytes = len(forward_body)
+        else:
+            body_bytes = None
 
         async with httpx.AsyncClient(
                 **{
                     'timeout': forward_timeout,
                     'proxy': await self.get_forward_request_proxy()
                 }) as client:
-            self.logger.debug(
-                f'forward_url {forward_url} forward_headers {forward_headers} forward_body {forward_body} forward_params {forward_params}')
+            self.logger.info(
+                f'forward request method={forward_method} body_bytes={body_bytes}')
             async with client.stream(
                 forward_method,
                 forward_url,
@@ -84,8 +91,8 @@ class ForwardMixin(object):
                 data=forward_body,
             ) as response:
                 self.forward_response = response
-                self.logger.debug(
-                    f'forward response {self.forward_response}')
+                self.logger.info(
+                    f'forward response status={self.forward_response.status_code}')
                 await self.write_response_status()
                 await self.write_response_headers()
                 await self.write_response_body()
