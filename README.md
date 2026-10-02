@@ -28,3 +28,9 @@ controller.add_handler(r'/test/(.*)', Handler)
 
 controller.start()
 ```
+
+Forwarding logs retain the handler's trace context, request method, response
+status, and aggregate response byte/chunk counts. Request URLs, parameters,
+headers, bodies, response headers, and individual response chunks are not logged.
+Forwarded data and headers are unchanged. The response summary is emitted only
+after the stream completes; interrupted streams still propagate their error.
